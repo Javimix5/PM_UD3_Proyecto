@@ -20,5 +20,34 @@ import kotlinx.coroutines.flow.Flow
 interface UserDao {
 
    /*   A IMPLEMENTAR POR EL ESTUDIANTE  */
+   @Query("SELECT * FROM users WHERE pendingDelete = 0")
+   fun getAllUsersStream(): Flow<List<User>>
+
+    @Query("SELECT * FROM users WHERE pendingSync = 1 AND pendingDelete = 0")
+    suspend fun getPendingUpdates(): List<User>
+
+    @Query("SELECT * FROM users WHERE pendingDelete = 1")
+    suspend fun getPendingDeletes(): List<User>
+
+    @Query("SELECT id FROM users")
+    suspend fun getAllUserIds(): List<String>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertUser(user: User)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertUsers(users: List<User>)
+
+    @Update
+    suspend fun updateUser(user: User)
+
+    @Update
+    suspend fun updateUsers(users: List<User>)
+
+    @Delete
+    suspend fun deleteUser(user: User)
+
+    @Query("DELETE FROM users WHERE id = :userId")
+    suspend fun deleteUserById(userId: String)
 
 }

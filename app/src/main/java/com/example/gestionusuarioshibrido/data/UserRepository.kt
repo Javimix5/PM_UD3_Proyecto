@@ -2,11 +2,8 @@ package com.example.gestionusuarioshibrido.data
 
 import com.example.gestionusuarioshibrido.data.local.User
 import com.example.gestionusuarioshibrido.data.local.UserDao
-import com.example.gestionusuarioshibrido.data.local.toRemote
-import com.example.gestionusuarioshibrido.data.remote.toLocal
 import com.example.gestionusuarioshibrido.network.MockApiService
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
 
 sealed class RepositoryResult {
@@ -36,19 +33,37 @@ class DefaultUserRepository(
 ) : UserRepository {
 
     override fun getAllUsersStream(): Flow<List<User>> {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        return local.getAllUsersStream()
     }
 
     override suspend fun insertUser(user: User): RepositoryResult {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        return try {
+            val userToSave = user.copy(pendingSync = true)
+            local.insertUser(userToSave)
+            RepositoryResult.Success("Usuario creado localmente")
+        } catch (e: Exception) {
+            RepositoryResult.Error("Error al crear usuario local", e)
+        }
     }
 
     override suspend fun updateUser(user: User): RepositoryResult {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        return try {
+            val userToUpdate = user.copy(pendingSync = true)
+            local.updateUser(userToUpdate)
+            RepositoryResult.Success("Usuario actualizado localmente")
+        } catch (e: Exception) {
+            RepositoryResult.Error("Error al actualizar usuario local", e)
+        }
     }
 
     override suspend fun deleteUser(user: User): RepositoryResult {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        return try {
+            val userToDelete = user.copy(pendingDelete = true, pendingSync = true)
+            local.updateUser(userToDelete)
+            RepositoryResult.Success("Usuario marcado para eliminación")
+        } catch (e: Exception) {
+            RepositoryResult.Error("Error al marcar usuario para eliminación", e)
+        }
     }
 
     /**
@@ -88,8 +103,53 @@ class DefaultUserRepository(
      */
 
     override suspend fun uploadPendingChanges(): RepositoryResult {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        return try {
+            var usuariosSubidos = 0
+            var usuariosBorrados = 0
+
+            // 1. Obtener actualizaciones pendientes (Altas y Modificaciones)
+            val pendingUpdates = local.getPendingUpdates()
+
+            for (user in pendingUpdates) {
+                if (user.id.startsWith("local_")) {
+                    val created = remote.createUser(user)
+
+                    local.deleteUserById(user.id)
+                    local.insertUser(created)
+
+                    usuariosSubidos++
+                } else {
+                    remote.updateUser(user.id, user)
+
+                    local.updateUser(user.copy(pendingSync = false))
+                    usuariosSubidos++
+                }
+            }
+
+            val pendingDeletes = local.getPendingDeletes()
+
+            for (user in pendingDeletes) {
+                if (!user.id.startsWith("local_")) {
+                    try {
+                        remote.deleteUser(user.id)
+                    } catch (e: Exception) {
+                    }
+                }
+                local.deleteUser(user)
+                usuariosBorrados++
+            }
+
+            if (usuariosSubidos == 0 && usuariosBorrados == 0) {
+                RepositoryResult.Success("No había cambios pendientes")
+            } else {
+                RepositoryResult.Success("Subidos: $usuariosSubidos, Borrados: $usuariosBorrados")
+            }
+
+        } catch (e: Exception) {
+            RepositoryResult.Error("Error durante la subida de cambios", e)
+        }
     }
+
 
     /**
      * Sincroniza la base de datos local con el estado completo del servidor remoto (`REMOTE -> LOCAL`).
@@ -134,6 +194,35 @@ class DefaultUserRepository(
      * @return [RepositoryResult] con el estado de la operación de sincronización REMOTE → LOCAL.
      */
     override suspend fun syncFromServer(): RepositoryResult {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        return try {
+            val remoteUsersDTO = remote.getAllUsers()
+
+            val remoteUsers = remoteUsersDTO
+
+            val localIds = local.getAllUserIds()
+
+            val usersToInsert = mutableListOf<User>()
+            val usersToUpdate = mutableListOf<User>()
+
+            for (remoteUser in remoteUsers) {
+                if (localIds.contains(remoteUser.id)) {
+                    usersToUpdate.add(remoteUser)
+                } else {
+                    usersToInsert.add(remoteUser)
+                }
+            }
+
+            if (usersToUpdate.isNotEmpty()) {
+                local.updateUsers(usersToUpdate)
+            }
+            if (usersToInsert.isNotEmpty()) {
+                local.insertUsers(usersToInsert)
+            }
+
+            RepositoryResult.Success("Descargados: ${usersToInsert.size} nuevos, ${usersToUpdate.size} actualizados")
+
+        } catch (e: Exception) {
+            RepositoryResult.Error("Error descargando datos del servidor", e)
+        }
     }
 }
