@@ -1,6 +1,7 @@
 package com.example.gestionusuarioshibrido.ui.views
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -26,6 +27,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import com.example.gestionusuarioshibrido.data.local.User
 import com.example.gestionusuarioshibrido.ui.components.UserCard
 
@@ -61,5 +65,68 @@ fun UserListScreen(
     onAddTestUser: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    throw UnsupportedOperationException("A completar por el estudiante")
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            TopAppBar(
+                title = { Text("Lista de usuarios") },
+                actions = {
+                    IconButton(onClick = onSync) {
+                        Icon(
+                            imageVector = Icons.Rounded.Sync,
+                            contentDescription = "Sincronizar"
+                        )
+                    }
+                    IconButton(onClick = onAddTestUser) {
+                        Icon(
+                            imageVector = Icons.Rounded.PersonAdd,
+                            contentDescription = "Añadir Test User"
+                        )
+                    }
+                }
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = onAddUser) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = "Crear nuevo usuario"
+                )
+            }
+        }
+    ) { paddingValues ->
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            if (users.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No hay usuarios.\nUsa el botón + o agita el móvil.",
+                        textAlign = TextAlign.Center,
+                        color = Color.Gray
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(users) { user ->
+                        UserCard(
+                            user = user,
+                            onEditUser = { onEditUser(user.id) },
+                            onDeleteUser = { onDeleteUser(user) }
+                        )
+                    }
+                }
+            }
+        }
+    }
 }

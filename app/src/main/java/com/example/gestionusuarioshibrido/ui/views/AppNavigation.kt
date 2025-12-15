@@ -65,12 +65,12 @@ fun AppNavigation(modifier: Modifier = Modifier) {
 
     LaunchedEffect(snackbarHostState) {
         userViewModel.events.collect { message ->
-            snackbarHostState.showSnackbar(message = message,duration = SnackbarDuration.Short)
+            snackbarHostState.showSnackbar(message = message, duration = SnackbarDuration.Short)
         }
     }
 
     Scaffold(
-        snackbarHost = {SnackbarHost(hostState = snackbarHostState)},
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         modifier = modifier
     ) { paddingValues ->
         val paddingModifier = Modifier.padding(paddingValues)
@@ -82,14 +82,48 @@ fun AppNavigation(modifier: Modifier = Modifier) {
             // Pantalla: Lista de usuarios
             // ---------------------------
             composable(route = "user_list") {
-                throw UnsupportedOperationException("A completar por el estudiante")
+                UserListScreen(
+                    users = users,
+                    onAddUser = {
+                        // Navegar al formulario de creación (sin ID)
+                        navController.navigate("user_form")
+                    },
+                    onEditUser = { user ->
+                        // Navegar al formulario de edición pasando el ID
+                        navController.navigate("user_form/${id}")
+                    },
+                    onDeleteUser = { user ->
+                        // Llamada al ViewModel para borrado lógico [cite: 45]
+                        userViewModel.deleteUser(user)
+                    },
+                    onSync = {
+                        // Forzar sincronización manual desde la UI
+                        userViewModel.sync()
+                    },
+                    onAddTestUser = {
+                        // Añadir usuario desde data/TestUsers.kt [cite: 13]
+                        userViewModel.addTestUser()
+                    },
+                    modifier = paddingModifier
+                )
             }
 
             // ----------------------------------------
             // Pantalla: Formulario para crear usuario
             // ----------------------------------------
             composable(route = "user_form") {
-                throw UnsupportedOperationException("A completar por el estudiante")
+                UserFormScreen(
+                    users = users,
+                    userId = null,
+                    onDone = { newUser ->
+                        userViewModel.insertUser(newUser)
+                        navController.popBackStack()
+                    },
+                    onBack = {
+                        navController.popBackStack()
+                    },
+                    modifier = paddingModifier
+                )
             }
 
             // ----------------------------------------
@@ -100,7 +134,24 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                 arguments = listOf(navArgument("id") { type = NavType.StringType })
             ) { backStackEntry ->
                 val id = backStackEntry.arguments?.getString("id")
-                throw UnsupportedOperationException("A completar por el estudiante")
+                val userToEdit = users.find { it.id == id }
+
+                if (userToEdit != null) {
+                    UserFormScreen(
+                        users = users,
+                        userId = id,
+                        onDone = { updatedUser ->
+                            userViewModel.updateUser(updatedUser)
+                            navController.popBackStack()
+                        },
+                        onBack = {
+                            navController.popBackStack()
+                        },
+                        modifier = paddingModifier
+                    )
+                } else {
+                    LaunchedEffect(Unit) { navController.popBackStack() }
+                }
             }
         }
     }

@@ -23,6 +23,7 @@ compose-material-icons = "1.7.8"
 room = "2.8.4"
 ksp = "2.2.21-2.0.4"
 material3 = "1.4.0"
+foundation = "1.10.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -58,6 +59,7 @@ room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 
 room-compiler-ksp = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

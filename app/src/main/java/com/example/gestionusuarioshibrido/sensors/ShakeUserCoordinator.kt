@@ -2,14 +2,11 @@ package com.example.gestionusuarioshibrido.sensors
 
 import android.content.Context
 import android.widget.Toast
-import androidx.lifecycle.viewModelScope
-import com.example.gestionusuarioshibrido.data.testUsers
 import com.example.gestionusuarioshibrido.viewmodel.UserViewModel
-import kotlinx.coroutines.launch
 
 /**
  * Clase responsable de iniciar y detener el SensorShakeDetector
- * y cuando detecta una sacudida ejecuta una sincronización
+ * y cuando detecta una sacudida ejecuta una sincronización.
  */
 class ShakeUserCoordinator(
     private val context: Context,
@@ -20,7 +17,7 @@ class ShakeUserCoordinator(
     init {
         // Inicializar el detector y definir el callback
         sensorShakeDetector = SensorShakeDetector(context) {
-            throw UnsupportedOperationException("A completar por el estudiante")
+            handleShakeEvent()
         }
     }
 
@@ -28,14 +25,16 @@ class ShakeUserCoordinator(
      * Lógica que se ejecuta al detectar una sacudida.
      */
     private fun handleShakeEvent() {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        Toast.makeText(context, "Sacudida detectada: Sincronizando...", Toast.LENGTH_SHORT).show()
+
+        userViewModel.sync()
     }
 
     fun startListening() {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        sensorShakeDetector.start()
     }
 
     fun stopListening() {
-        throw UnsupportedOperationException("A completar por el estudiante")
+        sensorShakeDetector.stop()
     }
 }

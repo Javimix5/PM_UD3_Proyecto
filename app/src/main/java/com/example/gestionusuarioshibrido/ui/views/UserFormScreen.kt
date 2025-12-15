@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -23,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.gestionusuarioshibrido.data.local.User
 
@@ -95,5 +99,128 @@ fun UserEditScreen(
     onDone: (User) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    throw UnsupportedOperationException("A completar por el estudiante")
+    // 1. Buscamos el usuario si estamos en modo edición
+    // Usamos 'remember(userId)' para que solo recalcule si cambia el ID
+    val existingUser = remember(userId, users) {
+        users.find { it.id == userId }
+    }
+
+    // 2. Definimos los estados para cada campo del formulario
+    // Inicializamos con los datos del usuario existente o cadenas vacías si es nuevo
+    var firstName by remember { mutableStateOf(existingUser?.firstName ?: "") }
+    var lastName by remember { mutableStateOf(existingUser?.lastName ?: "") }
+    var email by remember { mutableStateOf(existingUser?.email ?: "") }
+    var age by remember { mutableStateOf(existingUser?.age?.toString() ?: "") }
+    var userName by remember { mutableStateOf(existingUser?.userName ?: "") }
+    var positionTitle by remember { mutableStateOf(existingUser?.positionTitle ?: "") }
+    var imagen by remember { mutableStateOf(existingUser?.imagen ?: "https://randomuser.me/api/portraits/lego/1.jpg") }
+
+    // Estado para controlar validación básica (botón habilitado)
+    val isFormValid = firstName.isNotBlank() && lastName.isNotBlank() && email.isNotBlank()
+
+    // Usamos un Column con scroll vertical por si el teclado tapa los campos
+    Column(
+        modifier = modifier
+            .padding(16.dp)
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState()), // Habilita scroll
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        OutlinedTextField(
+            value = firstName,
+            onValueChange = { firstName = it },
+            label = { Text("Nombre") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
+        )
+
+        OutlinedTextField(
+            value = lastName,
+            onValueChange = { lastName = it },
+            label = { Text("Apellidos") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
+        )
+
+        OutlinedTextField(
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("Email") },
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            singleLine = true
+        )
+
+        OutlinedTextField(
+            value = age,
+            onValueChange = {
+                // Filtramos para que solo acepte números
+                if (it.all { char -> char.isDigit() }) age = it
+            },
+            label = { Text("Edad") },
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            singleLine = true
+        )
+
+        OutlinedTextField(
+            value = userName,
+            onValueChange = { userName = it },
+            label = { Text("Nombre de usuario") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
+        )
+
+        OutlinedTextField(
+            value = positionTitle,
+            onValueChange = { positionTitle = it },
+            label = { Text("Posición / Cargo") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
+        )
+
+        OutlinedTextField(
+            value = imagen,
+            onValueChange = { imagen = it },
+            label = { Text("URL Imagen") },
+            modifier = Modifier.fillMaxWidth(),
+            maxLines = 2
+        )
+
+        Button(
+            onClick = {
+                // Conversión segura de edad
+                val ageInt = age.toIntOrNull() ?: 0
+
+                // LÓGICA CRÍTICA DE IDs
+                // Si es nuevo (existingUser es null), generamos ID "local_"
+                // Si ya existe, mantenemos su ID original.
+                val finalId = existingUser?.id ?: "local_${System.nanoTime()}"
+
+                val userResult = User(
+                    id = finalId,
+                    firstName = firstName,
+                    lastName = lastName,
+                    email = email,
+                    age = ageInt,
+                    userName = userName,
+                    positionTitle = positionTitle,
+                    imagen = imagen,
+                    // pendingSync siempre es true al guardar en local (ver UserRepository)
+                    // pero aquí lo dejamos en false porque el Repo se encarga de ponerlo a true
+                    // o lo ponemos explícito si queremos asegurar.
+                    pendingSync = true,
+                    pendingDelete = false
+                )
+
+                onDone(userResult)
+            },
+            enabled = isFormValid,
+            modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+        ) {
+            Text(if (existingUser == null) "Crear" else "Modificar")
+        }
+    }
 }
