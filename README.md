@@ -125,7 +125,7 @@ Mapeos:
 
    
    <img width="250" height="500" alt="image" src="https://github.com/user-attachments/assets/79c0240b-d868-4f48-aa05-778de35e7109" />
-   <img width="652" height="652" alt="Captura de pantalla 2025-12-18 191419" src="https://github.com/user-attachments/assets/553e9aa3-3ff9-45de-83f5-d02321f9b7c7" />
+   <img width="650" height="650" alt="Captura de pantalla 2025-12-18 191419" src="https://github.com/user-attachments/assets/553e9aa3-3ff9-45de-83f5-d02321f9b7c7" />
 
 
    - Agita el dispositivo; la app muestra un Toast y ejecuta  la sincronización `sync()` del `UserViewModel`.
