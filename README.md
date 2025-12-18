@@ -2,7 +2,6 @@
 
 <img width="250" height="500" alt="image" src="https://github.com/user-attachments/assets/6a36862f-cc1c-487a-8262-e2da08531fb8" />
 <img width="250" height="500" alt="image" src="https://github.com/user-attachments/assets/aefd8f93-2739-46fb-9c14-e3a3fc67aeaf" />
-<img width="250" height="500" alt="image" src="https://github.com/user-attachments/assets/600d0480-b20b-4042-b45b-859f1abadad8" />
 <img width="250" height="500" alt="image" src="https://github.com/user-attachments/assets/ee16cae4-e119-46b5-b27e-3edb8167338c" />
 
 
@@ -113,12 +112,18 @@ Mapeos:
    - Pulsa el icono de añadir test user; la app añade usuarios de ejemplo definidos en `TestUsers.kt`.
 
 5. Sincronización manual
+
+
+<img width="250" height="500" alt="image" src="https://github.com/user-attachments/assets/600d0480-b20b-4042-b45b-859f1abadad8" />
+
    - Pulsa el icono Sync (barra superior).
    - Resultado esperado: La app actualizará los datos del MockAPI en función de los cambios realizados (altas/actualizaciones/borrados pendientes).
      - Seguidamente descarga la lista completa del servidor.
      - Se mostrará un SnackBar con la información que indica que se está sincronizando, seguido de la sincronización completa.
 
-6. Sincronización por Shake
+7. Sincronización por Shake
+
+   
    <img width="250" height="500" alt="image" src="https://github.com/user-attachments/assets/79c0240b-d868-4f48-aa05-778de35e7109" />
 
    - Agita el dispositivo; la app muestra un Toast y ejecuta  la sincronización `sync()` del `UserViewModel`.
