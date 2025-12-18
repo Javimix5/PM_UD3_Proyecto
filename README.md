@@ -111,11 +111,11 @@ Mapeos:
    - Pulsa el icono de añadir test user; la app añade usuarios de ejemplo definidos en `TestUsers.kt`.
 
 5. Sincronización manual
-
-
-<img width="250" height="500" alt="Captura de pantalla 2025-12-18 191254" src="https://github.com/user-attachments/assets/86363faa-b4f1-4489-9979-615cb7ca0601" />
-
    - Pulsa el icono Sync (barra superior).
+  
+<img width="250" height="300" alt="Captura de pantalla 2025-12-18 192112" src="https://github.com/user-attachments/assets/f74177f5-4dc3-444c-b90b-f23d264e05f5" />
+
+
    - Resultado esperado: La app actualizará los datos del MockAPI en función de los cambios realizados (altas/actualizaciones/borrados pendientes).
      - Seguidamente descarga la lista completa del servidor.
      - Se mostrará un SnackBar con la información que indica que se está sincronizando, seguido de la sincronización completa.
