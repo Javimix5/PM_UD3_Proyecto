@@ -1,7 +1,7 @@
 # Gestión de Usuarios (Híbrido)
 
-<img width="412" height="853" alt="image" src="https://github.com/user-attachments/assets/6a36862f-cc1c-487a-8262-e2da08531fb8" />
-<img width="403" height="863" alt="image" src="https://github.com/user-attachments/assets/aefd8f93-2739-46fb-9c14-e3a3fc67aeaf" />
+<img width="300" height="500" alt="image" src="https://github.com/user-attachments/assets/6a36862f-cc1c-487a-8262-e2da08531fb8" />
+<img width="300" height="500" alt="image" src="https://github.com/user-attachments/assets/aefd8f93-2739-46fb-9c14-e3a3fc67aeaf" />
 
 
 
