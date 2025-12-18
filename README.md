@@ -2,10 +2,6 @@
 
 <img width="250" height="500" alt="image" src="https://github.com/user-attachments/assets/6a36862f-cc1c-487a-8262-e2da08531fb8" />
 <img width="250" height="500" alt="image" src="https://github.com/user-attachments/assets/aefd8f93-2739-46fb-9c14-e3a3fc67aeaf" />
-<img width="250" height="500" alt="image" src="https://github.com/user-attachments/assets/ee16cae4-e119-46b5-b27e-3edb8167338c" />
-
-
-
 
 
 Este proyecto es una aplicación Android que gestiona una lista de usuarios con soporte híbrido local/remoto.
@@ -103,6 +99,8 @@ Mapeos:
 
 2. Editar usuario
    - Pulsa el icono editar en la tarjeta, cambia datos y guarda.
+     <img width="250" height="233" alt="Captura de pantalla 2025-12-18 191916" src="https://github.com/user-attachments/assets/167c8c2b-b1ff-499e-a824-9a8fd7a735c8" />
+
    - Resultado: datos actualizados localmente.
 
 3. Borrar usuario
