@@ -110,6 +110,10 @@ Mapeos:
 
 2. Borrar usuario
    - Pulsa el icono eliminar; el usuario se marca para borrado localmente.
+     
+     <img width="250" height="233" alt="image" src="https://github.com/user-attachments/assets/71cafa87-6bcd-474c-823e-7a926e4e720d" />
+
+     
 
 3. Añadir Test User (desde AppBar)
    - Pulsa el icono de añadir test user; la app añade usuarios de ejemplo definidos en `TestUsers.kt`.
