@@ -117,6 +117,6 @@ Mapeos:
 
 
 Mensajes clave que indican correcto funcionamiento:
-- "Sincorni iniciado" y "sync() finalizado" (desde `UserViewModel`).
+- "Sincronización iniciada" y "Sincronización finalizada" (usando la función `sync()` desde `UserViewModel`).
 - "Sacudida detectada: iniciando sync() in ViewModel" (desde `ShakeUserCoordinator`).
 - Mensajes de `DefaultUserRepository` con resumen "Subidos: X, Borrados: Y" y "Descargados: A nuevos, B actualizados".
