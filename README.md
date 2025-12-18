@@ -95,25 +95,32 @@ Mapeos:
 ## Probar funciones principales (pasos)
 1. Crear usuario
    - Pulsa el botón +, completa nombre/apellidos/email y pulsa Crear.
+     
+     <img width="250" height="500" alt="image" src="https://github.com/user-attachments/assets/327bbae7-7b62-4abe-8496-f483d76623a1" />
+     
+
    - Resultado esperado: el usuario aparece en la lista con id `local_<timestamp>`.
 
-2. Editar usuario
+1. Editar usuario
    - Pulsa el icono editar en la tarjeta, cambia datos y guarda.
     
      <img width="250" height="233" alt="Captura de pantalla 2025-12-18 191916" src="https://github.com/user-attachments/assets/167c8c2b-b1ff-499e-a824-9a8fd7a735c8" />
 
    - Resultado: datos actualizados localmente.
 
-3. Borrar usuario
+2. Borrar usuario
    - Pulsa el icono eliminar; el usuario se marca para borrado localmente.
 
-4. Añadir Test User (desde AppBar)
+3. Añadir Test User (desde AppBar)
    - Pulsa el icono de añadir test user; la app añade usuarios de ejemplo definidos en `TestUsers.kt`.
+  
+     <img width="250" height="233" alt="Captura de pantalla 2025-12-18 192112_usuariotest" src="https://github.com/user-attachments/assets/06bcd81b-5ff4-4abe-a979-187cd2ffbee8" />
 
-5. Sincronización manual
+
+4. Sincronización manual
    - Pulsa el icono Sync (barra superior).
   
-<img width="250" height="300" alt="Captura de pantalla 2025-12-18 192112" src="https://github.com/user-attachments/assets/f74177f5-4dc3-444c-b90b-f23d264e05f5" />
+     <img width="250" height="300" alt="Captura de pantalla 2025-12-18 192112" src="https://github.com/user-attachments/assets/f74177f5-4dc3-444c-b90b-f23d264e05f5" />
 
 
    - Resultado esperado: La app actualizará los datos del MockAPI en función de los cambios realizados (altas/actualizaciones/borrados pendientes).
