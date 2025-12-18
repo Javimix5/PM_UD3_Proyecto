@@ -99,6 +99,7 @@ Mapeos:
 
 2. Editar usuario
    - Pulsa el icono editar en la tarjeta, cambia datos y guarda.
+    
      <img width="250" height="233" alt="Captura de pantalla 2025-12-18 191916" src="https://github.com/user-attachments/assets/167c8c2b-b1ff-499e-a824-9a8fd7a735c8" />
 
    - Resultado: datos actualizados localmente.
