@@ -116,7 +116,7 @@ Mapeos:
      - La app actualizará los datos del MockAPI en función de los cambios realizados.
 
 
-Mensajes clave que indican correcto funcionamiento:
+## Mensajes clave que indican correcto funcionamiento:
 - "Sincronización iniciada" y "Sincronización finalizada" (usando la función `sync()` desde `UserViewModel`).
 - "Sacudida detectada: iniciando sync() in ViewModel" (desde `ShakeUserCoordinator`).
 - Mensajes de `DefaultUserRepository` con resumen "Subidos: X, Borrados: Y" y "Descargados: A nuevos, B actualizados".
