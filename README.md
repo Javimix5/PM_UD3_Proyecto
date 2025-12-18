@@ -114,7 +114,7 @@ Mapeos:
 5. Sincronización manual
 
 
-<img width="250" height="500" alt="image" src="https://github.com/user-attachments/assets/600d0480-b20b-4042-b45b-859f1abadad8" />
+<img width="250" height="500" alt="Captura de pantalla 2025-12-18 191254" src="https://github.com/user-attachments/assets/86363faa-b4f1-4489-9979-615cb7ca0601" />
 
    - Pulsa el icono Sync (barra superior).
    - Resultado esperado: La app actualizará los datos del MockAPI en función de los cambios realizados (altas/actualizaciones/borrados pendientes).
