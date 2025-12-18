@@ -1,8 +1,12 @@
 package com.example.gestionusuarioshibrido.data
 
+import android.util.Log
 import com.example.gestionusuarioshibrido.data.local.User
+import com.example.gestionusuarioshibrido.data.local.toRemote
 import com.example.gestionusuarioshibrido.data.local.UserDao
 import com.example.gestionusuarioshibrido.network.MockApiService
+import com.example.gestionusuarioshibrido.data.remote.RemoteUser
+import com.example.gestionusuarioshibrido.data.remote.toLocal
 import kotlinx.coroutines.flow.Flow
 
 
@@ -32,6 +36,8 @@ class DefaultUserRepository(
     private val remote: MockApiService
 ) : UserRepository {
 
+    private val TAG = "DefaultUserRepository"
+
     override fun getAllUsersStream(): Flow<List<User>> {
         return local.getAllUsersStream()
     }
@@ -42,6 +48,7 @@ class DefaultUserRepository(
             local.insertUser(userToSave)
             RepositoryResult.Success("Usuario creado localmente")
         } catch (e: Exception) {
+            Log.e(TAG, "Error insertUser", e)
             RepositoryResult.Error("Error al crear usuario local", e)
         }
     }
@@ -52,6 +59,7 @@ class DefaultUserRepository(
             local.updateUser(userToUpdate)
             RepositoryResult.Success("Usuario actualizado localmente")
         } catch (e: Exception) {
+            Log.e(TAG, "Error updateUser", e)
             RepositoryResult.Error("Error al actualizar usuario local", e)
         }
     }
@@ -62,6 +70,7 @@ class DefaultUserRepository(
             local.updateUser(userToDelete)
             RepositoryResult.Success("Usuario marcado para eliminación")
         } catch (e: Exception) {
+            Log.e(TAG, "Error deleteUser", e)
             RepositoryResult.Error("Error al marcar usuario para eliminación", e)
         }
     }
@@ -87,19 +96,6 @@ class DefaultUserRepository(
      * 2. **Borrados (pendingDeletes)**
      *    - Si el usuario tiene un `id` real (no empieza por `"local_"`), se envía `deleteUser()` al servidor.
      *    - En cualquier caso, la entrada se elimina de la base de datos local.
-     *
-     * ### Resultado
-     *
-     * Devuelve un [RepositoryResult] indicando si la sincronización fue satisfactoria o si ocurrió un error.
-     *
-     * - `RepositoryResult.Success` incluye un resumen del número de usuarios actualizados y borrados.
-     * - `RepositoryResult.Error` encapsula la excepción originada durante el proceso.
-     *
-     * ### Excepciones
-     * Cualquier error (fallo de red, conversión, servidor no disponible, etc.) provoca que se devuelva
-     * `RepositoryResult.Error`, sin eliminar ni modificar los datos locales pendientes.
-     *
-     * @return [RepositoryResult] con el estado final de la operación de sincronización.
      */
 
     override suspend fun uploadPendingChanges(): RepositoryResult {
@@ -112,15 +108,19 @@ class DefaultUserRepository(
 
             for (user in pendingUpdates) {
                 if (user.id.startsWith("local_")) {
-                    val created = remote.createUser(user)
+                    // Crear en remoto usando DTO remoto
+                    val createdRemote: RemoteUser = remote.createUser(user.toRemote())
 
+                    // Reemplazar local provisional por la versión remota
                     local.deleteUserById(user.id)
-                    local.insertUser(created)
+                    local.insertUser(createdRemote.toLocal())
 
                     usuariosSubidos++
                 } else {
-                    remote.updateUser(user.id, user)
+                    // Actualizar en remoto usando DTO remoto
+                    remote.updateUser(user.id, user.toRemote())
 
+                    // Marcar como sincronizado
                     local.updateUser(user.copy(pendingSync = false))
                     usuariosSubidos++
                 }
@@ -131,8 +131,12 @@ class DefaultUserRepository(
             for (user in pendingDeletes) {
                 if (!user.id.startsWith("local_")) {
                     try {
-                        remote.deleteUser(user.id)
+                        val response = remote.deleteUser(user.id)
+                        if (!response.isSuccessful) {
+                            Log.w(TAG, "deleteUser response not successful for ${user.id}: ${response.code()}")
+                        }
                     } catch (e: Exception) {
+                        Log.w(TAG, "deleteUser failed for ${user.id}", e)
                     }
                 }
                 local.deleteUser(user)
@@ -146,6 +150,7 @@ class DefaultUserRepository(
             }
 
         } catch (e: Exception) {
+            Log.e(TAG, "Error during uploadPendingChanges", e)
             RepositoryResult.Error("Error durante la subida de cambios", e)
         }
     }
@@ -153,49 +158,10 @@ class DefaultUserRepository(
 
     /**
      * Sincroniza la base de datos local con el estado completo del servidor remoto (`REMOTE -> LOCAL`).
-     *
-     * Este proceso descarga todos los usuarios desde la API remota y actualiza la base de datos local
-     * aplicando una política de **reemplazo total** mediante `OnConflictStrategy.REPLACE`.
-     *
-     * ### Flujo de sincronización
-     *
-     * 1. **Descarga completa del servidor**
-     *    Se obtiene la lista completa de usuarios mediante `remote.getAllUsers()`.
-     *
-     * 2. **Detección de nuevas inserciones**
-     *    - Se recuperan todos los IDs locales existentes.
-     *    - Se identifican aquellos usuarios remotos cuyo `id` no está en la base de datos local.
-     *      Estos se consideran **nuevos registros** que deberán insertarse.
-     *
-     * 3. **Actualización e inserción masiva**
-     *    Todos los usuarios remotos se convierten a entidades locales mediante `toLocal()`
-     *    y se almacenan utilizando la estrategia `REPLACE`, lo que garantiza:
-     *    - inserción de los nuevos registros,
-     *    - sobrescritura de registros existentes,
-     *    - mantenimiento de coherencia con el servidor.
-     *
-     * ### Resultado
-     *
-     * Devuelve un [RepositoryResult] indicando si la sincronización fue correcta o si ocurrió un error.
-     *
-     * - `RepositoryResult.Success` incluye un resumen:
-     *   - número de usuarios **insertados** (no existían previamente),
-     *   - número de usuarios **actualizados** (existían y fueron reemplazados).
-     *
-     * - `RepositoryResult.Error` se devuelve si ocurre cualquier excepción durante la comunicación
-     *   con el servidor o al escribir en la base de datos local.
-     *
-     * ### Importante
-     *
-     * Este método implementa una sincronización **descendente completa**, ideal para sistemas
-     * offline-first donde el servidor es la fuente de verdad final.
-     * No elimina registros locales que no existen en el servidor; solo inserta o reemplaza.
-     *
-     * @return [RepositoryResult] con el estado de la operación de sincronización REMOTE → LOCAL.
      */
     override suspend fun syncFromServer(): RepositoryResult {
         return try {
-            val remoteUsersDTO = remote.getAllUsers()
+            val remoteUsersDTO: List<RemoteUser> = remote.getAllUsers()
 
             val remoteUsers = remoteUsersDTO
 
@@ -205,10 +171,11 @@ class DefaultUserRepository(
             val usersToUpdate = mutableListOf<User>()
 
             for (remoteUser in remoteUsers) {
-                if (localIds.contains(remoteUser.id)) {
-                    usersToUpdate.add(remoteUser)
+                val localUser = remoteUser.toLocal()
+                if (localIds.contains(localUser.id)) {
+                    usersToUpdate.add(localUser)
                 } else {
-                    usersToInsert.add(remoteUser)
+                    usersToInsert.add(localUser)
                 }
             }
 
@@ -222,6 +189,7 @@ class DefaultUserRepository(
             RepositoryResult.Success("Descargados: ${usersToInsert.size} nuevos, ${usersToUpdate.size} actualizados")
 
         } catch (e: Exception) {
+            Log.e(TAG, "Error during syncFromServer", e)
             RepositoryResult.Error("Error descargando datos del servidor", e)
         }
     }

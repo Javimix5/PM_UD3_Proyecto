@@ -66,36 +66,27 @@ class SensorShakeDetector(
     override fun onSensorChanged(event: SensorEvent?) {
         if (event == null) return
 
-        // 1. Se obtiene la aceleración en los ejes X, Y y Z.
         val x = event.values[0]
         val y = event.values[1]
         val z = event.values[2]
 
-        // 2. Cada eje se normaliza dividiendo entre la gravedad estándar.
-        // Esto convierte m/s^2 a unidades "G".
         val gX = x / SensorManager.GRAVITY_EARTH
         val gY = y / SensorManager.GRAVITY_EARTH
         val gZ = z / SensorManager.GRAVITY_EARTH
 
-        // 3. Se calcula la magnitud del vector (fuerza total en G).
-        // Fórmula: F = raiz(x^2 + y^2 + z^2)
         val gForce = sqrt(gX * gX + gY * gY + gZ * gZ)
 
-        // 4. Comprobación de umbral y tiempo
         if (gForce > SHAKE_THRESHOLD_GRAVITY) {
             val now = System.currentTimeMillis()
 
-            // Verificamos si ha pasado suficiente tiempo desde la última sacudida
             if (lastShakeTime + MIN_TIME_BETWEEN_SHAKES <= now) {
                 lastShakeTime = now
-                // Ejecutamos la acción (que será la sincronización en el ViewModel)
                 onShake()
             }
         }
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        // Guardar la precisión y registrar para diagnóstico.
         lastAccuracy = accuracy
         when (accuracy) {
             SensorManager.SENSOR_STATUS_UNRELIABLE -> {
@@ -118,7 +109,7 @@ class SensorShakeDetector(
 
     // Constantes utilizadas en la detección de sacudidas
     companion object {
-        private const val SHAKE_THRESHOLD_GRAVITY: Float = 2.7f
+        private const val SHAKE_THRESHOLD_GRAVITY: Float = 1.3f
         private const val MIN_TIME_BETWEEN_SHAKES: Long = 500L
         private const val TAG = "SensorShakeDetector"
     }

@@ -1,7 +1,7 @@
 package com.example.gestionusuarioshibrido.viewmodel
 
 import android.content.Context
-import androidx.core.os.registerForAllProfilingResults
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -31,6 +31,9 @@ import kotlinx.coroutines.launch
  * @property userRepository Repositorio híbrido que gestiona acceso local y remoto.
  */
 class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
+
+    private val TAG = "UserViewModel"
+
     /**
      * Canal privado para emitir eventos puntuales hacia la UI
      * (mensajes Toast, SnackBars, etc.).
@@ -100,9 +103,11 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
      */
     fun setupShakeListener(context: Context) {
         if (shakeUserCoordinator == null) {
+            Log.d(TAG, "Creando ShakeUserCoordinator")
             // Pasamos 'this' (el propio ViewModel) al coordinador
             shakeUserCoordinator = ShakeUserCoordinator(context, this)
         }
+        Log.d(TAG, "Iniciando escucha shake desde ViewModel")
         shakeUserCoordinator?.startListening()
     }
 
@@ -147,6 +152,7 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
      * Tras cada fase, procesa el resultado y lo comunica a la UI.
      */
     fun sync() = viewModelScope.launch {
+        Log.d(TAG, "sync() iniciado")
         _events.send("Iniciando sincronización...")
 
         val uploadResult = userRepository.uploadPendingChanges()
@@ -156,6 +162,7 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
         processResult(downloadResult)
 
         _events.send("Sincronización finalizada.")
+        Log.d(TAG, "sync() finalizado")
     }
 
     /**

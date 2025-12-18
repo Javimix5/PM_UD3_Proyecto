@@ -59,7 +59,7 @@ abstract class UserDatabase : RoomDatabase() {
                     context,
                     UserDatabase::class.java,
                     "user_database"
-                ).fallbackToDestructiveMigration().build().also { Instance = it }
+                ).build().also { Instance = it }
             }
         }
     }
