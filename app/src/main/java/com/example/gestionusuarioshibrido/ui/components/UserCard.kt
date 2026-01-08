@@ -34,6 +34,33 @@ import coil3.request.crossfade
 import com.example.gestionusuarioshibrido.data.local.User
 import com.example.gestionusuarioshibrido.R
 
+/**
+ * Composable que muestra la información de un usuario en una tarjeta.
+ *
+ * Muestra la foto (usando Coil), el nombre completo, cargo, nombre de usuario, edad
+ * y correo electrónico. Incluye botones para editar y eliminar el usuario.
+ *
+ * Contrato / Comportamiento:
+ * - Inputs:
+ *   - user: entidad local {@link com.example.gestionusuarioshibrido.data.local.User} con los datos a mostrar.
+ *   - onEditUser: callback que recibe el id del usuario cuando se solicita editar.
+ *   - onDeleteUser: callback que recibe el objeto User cuando se solicita eliminar.
+ *   - modifier: Modifier opcional para personalizar el layout.
+ * - Output: renderizado de la UI; las acciones se envían mediante los callbacks.
+ * - Errores / casos a considerar:
+ *   - Si `user.imagen` es nulo o apunta a una URL inválida, se mostrará el drawable de error (`R.drawable.ic_broken_image`).
+ *   - Esta función no realiza operaciones de red ni de base de datos; delega esas responsabilidades a los callbacks.
+ *
+ * Notas de implementación:
+ * - Usa `coil3.compose.AsyncImage` con `ImageRequest` y crossfade.
+ * - El botón de editar pasa `user.id` al callback `onEditUser`.
+ * - El botón de eliminar pasa el objeto `user` al callback `onDeleteUser`.
+ *
+ * @param user El usuario cuya información se mostrará. No se muta desde este composable.
+ * @param onEditUser Callback invocado con el id del usuario para iniciar la edición.
+ * @param onDeleteUser Callback invocado con el objeto User para confirmar/eliminar.
+ * @param modifier Modifier opcional aplicado al contenedor de la tarjeta.
+ */
 @Composable
 fun UserCard(
     user: User,
@@ -137,6 +164,12 @@ fun UserCard(
     }
 }
 
+/**
+ * Preview de `UserCard` con datos de ejemplo para usar en el editor de Android Studio.
+ *
+ * No realiza llamadas ni efectos secundarios; simplemente crea un `User` ficticio
+ * y lo pasa al composable para renderizar la tarjeta en el preview.
+ */
 @Preview(showBackground = true)
 @Composable
 fun PreviewUserCard() {
